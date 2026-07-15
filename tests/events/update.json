@@ -1,0 +1,8 @@
+{
+    "version": "2.0",
+    "routeKey": "PUT /notes/{id}",
+    "pathParameters": {
+      "id": "bfd5fd39-e3cc-4439-bd94-7ec71f2639b5"
+    },
+    "body": "{\"title\": \"Yangilangan sarlavha!\", \"content\": \"Bu eslatma CLI orqali muvaffaqiyatli yangilandi.\"}"
+  }

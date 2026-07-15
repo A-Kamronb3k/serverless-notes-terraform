@@ -1,0 +1,5 @@
+{
+    "version": "2.0",
+    "routeKey": "POST /notes",
+    "body": "{\"title\": \"First note\", \"content\": \"Created via CLI invoke\"}"
+  }

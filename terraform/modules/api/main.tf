@@ -16,22 +16,27 @@ locals {
     create = {
       handler     = "create.lambda_handler"
       ddb_actions = ["dynamodb:PutItem"]
+      route       = "POST /notes"
     }
     get = {
       handler     = "get.lambda_handler"
       ddb_actions = ["dynamodb:GetItem"]
+      route       = "GET /notes/{id}"
     }
     list = {
       handler     = "list.lambda_handler"
       ddb_actions = ["dynamodb:Scan"]
+      route       = "GET /notes"
     }
     update = {
       handler     = "update.lambda_handler"
       ddb_actions = ["dynamodb:UpdateItem"]
+      route       = "PUT /notes/{id}"
     }
     delete = {
       handler     = "delete.lambda_handler"
       ddb_actions = ["dynamodb:DeleteItem"]
+      route       = "DELETE /notes/{id}"
     }
   }
 }
@@ -113,4 +118,54 @@ resource "aws_lambda_function" "function" {
   }
 
   depends_on = [aws_cloudwatch_log_group.function]
+}
+
+resource "aws_apigatewayv2_api" "this" {
+  name          = var.project
+  protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers = ["content-type"]
+    max_age       = 3600
+  }
+}
+
+resource "aws_apigatewayv2_integration" "function" {
+  for_each = local.functions
+
+  api_id                 = aws_apigatewayv2_api.this.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.function[each.key].invoke_arn
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_route" "function" {
+  for_each = local.functions
+
+  api_id    = aws_apigatewayv2_api.this.id
+  route_key = each.value.route
+  target    = "integrations/${aws_apigatewayv2_integration.function[each.key].id}"
+}
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.this.id
+  name        = "$default"
+  auto_deploy = true
+
+  default_route_settings {
+    throttling_burst_limit = 10
+    throttling_rate_limit  = 20
+  }
+}
+
+resource "aws_lambda_permission" "apigw" {
+  for_each = local.functions
+
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.function[each.key].function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.this.execution_arn}/*/*"
 }

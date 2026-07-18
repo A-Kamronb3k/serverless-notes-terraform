@@ -12,3 +12,8 @@ variable "table_arn" {
   description = "DynamoDB table ARN for least-privilege IAM policies"
   type        = string
 }
+
+variable "allowed_origins" {
+  description = "List of origins allowed by the API Gateway CORS configuration"
+  type        = list(string)
+}

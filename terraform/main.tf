@@ -7,6 +7,10 @@ module "api" {
   project    = "serverless-notes"
   table_name = module.db.table_name
   table_arn  = module.db.table_arn
+  allowed_origins = [
+    "https://${module.frontend.distribution_domain_name}",
+    "http://localhost:8000",
+  ]
 }
 
 module "frontend" {

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notes</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1>Notes</h1>
+        <p class="subtitle">Simple notes backed by a serverless API</p>
+      </header>
+
+      <div id="error-banner" class="error-banner" hidden role="alert"></div>
+
+      <section class="create-section" aria-labelledby="create-heading">
+        <h2 id="create-heading">New note</h2>
+        <form id="create-form" class="note-form">
+          <label>
+            Title
+            <input
+              id="create-title"
+              name="title"
+              type="text"
+              maxlength="200"
+              required
+              autocomplete="off"
+              placeholder="Note title"
+            />
+          </label>
+          <label>
+            Content
+            <textarea
+              id="create-content"
+              name="content"
+              maxlength="5000"
+              rows="4"
+              placeholder="Write something…"
+            ></textarea>
+          </label>
+          <button type="submit" id="create-submit">Add note</button>
+        </form>
+      </section>
+
+      <section class="list-section" aria-labelledby="list-heading">
+        <h2 id="list-heading">Your notes</h2>
+        <p id="loading" class="status" hidden>Loading notes…</p>
+        <p id="empty" class="status empty" hidden>No notes yet. Create one above.</p>
+        <ul id="notes-list" class="notes-list"></ul>
+      </section>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

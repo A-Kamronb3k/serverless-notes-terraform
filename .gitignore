@@ -5,3 +5,4 @@
 !*.tfvars.example
 build/
 *.zip
+frontend/config.js

@@ -2,19 +2,26 @@
 
 HTTP API (API Gateway v2) for creating, reading, updating, and deleting notes stored in DynamoDB.
 
-Base URL: use the Terraform output `api_endpoint` (for example `https://{api-id}.execute-api.{region}.amazonaws.com`).
+**Base URL:** `https://zaag9fi70j.execute-api.eu-north-1.amazonaws.com`
 
-Content-Type for request and response bodies: `application/json` (except `204 No Content`).
+**Content-Type** for request and response bodies: `application/json` (except `204 No Content`).
+
+## 🔒 Security & Authentication
+The API is protected by **Amazon Cognito**. 
+- `GET /notes` and `GET /notes/{id}` are **public** (no authentication required).
+- `POST`, `PUT`, and `DELETE` methods require a valid JWT token. 
+You must include the token in the headers of your request:
+`Authorization: Bearer <your_cognito_jwt_token>`
 
 ## Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/notes` | Create a note |
-| `GET` | `/notes` | List notes (up to 50) |
-| `GET` | `/notes/{id}` | Get a note by id |
-| `PUT` | `/notes/{id}` | Partially update a note |
-| `DELETE` | `/notes/{id}` | Delete a note |
+| Method | Path | Description | Auth Required |
+|--------|------|-------------|---------------|
+| `POST` | `/notes` | Create a note | Yes (JWT) |
+| `GET` | `/notes` | List notes (up to 50) | No |
+| `GET` | `/notes/{id}` | Get a note by id | No |
+| `PUT` | `/notes/{id}` | Partially update a note | Yes (JWT) |
+| `DELETE` | `/notes/{id}` | Delete a note | Yes (JWT) |
 
 ### Note object
 
@@ -32,7 +39,7 @@ Unknown body fields are rejected. Only `title` and `content` are accepted in req
 
 ## `POST /notes`
 
-Create a note.
+Create a note. **Requires Authentication.**
 
 **Request**
 
@@ -67,7 +74,7 @@ Create a note.
 
 ## `GET /notes`
 
-List notes (DynamoDB scan, limit 50).
+List notes (DynamoDB scan, limit 50). **Public.**
 
 **Request** — no body.
 
@@ -92,7 +99,7 @@ List notes (DynamoDB scan, limit 50).
 
 ## `GET /notes/{id}`
 
-Fetch a single note by id.
+Fetch a single note by id. **Public.**
 
 **Request** — no body. Path parameter `id` is required.
 
@@ -112,7 +119,7 @@ Fetch a single note by id.
 
 ## `PUT /notes/{id}`
 
-Partial update. Send at least one of `title` or `content`. `updated_at` is refreshed server-side.
+Partial update. Send at least one of `title` or `content`. `updated_at` is refreshed server-side. **Requires Authentication.**
 
 **Request**
 
@@ -147,7 +154,7 @@ Title only:
 
 ## `DELETE /notes/{id}`
 
-Delete a note by id.
+Delete a note by id. **Requires Authentication.**
 
 **Request** — no body. Path parameter `id` is required.
 
@@ -160,7 +167,6 @@ Delete a note by id.
 All error responses use a JSON body with an `error` field (except where noted).
 
 ### `400 Bad Request`
-
 Invalid JSON, missing/invalid fields, or validation failures.
 
 ```json
@@ -169,40 +175,10 @@ Invalid JSON, missing/invalid fields, or validation failures.
 }
 ```
 
-Other example messages:
-
-```json
-{
-  "error": "Invalid JSON body"
-}
-```
-
-```json
-{
-  "error": "title must be a non-empty string"
-}
-```
-
-```json
-{
-  "error": "Unknown fields: tags"
-}
-```
-
-```json
-{
-  "error": "At least one of title or content is required"
-}
-```
-
-```json
-{
-  "error": "id path parameter is required"
-}
-```
+### `401 Unauthorized`
+Missing or invalid JWT token in the `Authorization` header for protected routes.
 
 ### `404 Not Found`
-
 Note does not exist (get, update, or delete).
 
 ```json
@@ -212,7 +188,6 @@ Note does not exist (get, update, or delete).
 ```
 
 ### `500 Internal Server Error`
-
 Unexpected failure. Message is generic; details are not returned to the client.
 
 ```json

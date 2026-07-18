@@ -8,3 +8,10 @@
 - **Permissions:** Granted API Gateway the right to invoke each function via `aws_lambda_permission`, keeping per-function least-privilege IAM.
 - **CORS & throttling:** Configured CORS with `OPTIONS` preflight handling for the upcoming frontend, and enabled throttling (rate + burst limits) as basic abuse protection.
 - **Tested:** Full CRUD cycle via `curl` — `200 OK`, `204 No Content`, and `404 Not Found` all behaved as expected.
+
+### Day 18: Frontend Provisioning & Cognito Authentication
+- Provisioned an **Amazon S3** bucket and securely deployed the vanilla JS frontend.
+- Set up an **Amazon CloudFront** distribution with Origin Access Control (OAC) for global caching and HTTPS execution.
+- Wrote a custom Bash script (`deploy-frontend.sh`) to automate building config files, syncing to S3, and invalidating CloudFront cache.
+- Secured the API Gateway by enforcing strict **CORS** configurations mapped to the CloudFront domain.
+- Implemented **Amazon Cognito** User Pools and integrated a JWT Authorizer into API Gateway to protect `POST`, `PUT`, and `DELETE` routes.

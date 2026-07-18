@@ -17,3 +17,15 @@ output "frontend_distribution_domain_name" {
   value       = module.frontend.distribution_domain_name
   description = "CloudFront distribution domain name for the frontend"
 }
+
+output "cognito_user_pool_id" {
+  value = module.auth.user_pool_id
+}
+
+output "cognito_client_id" {
+  value = module.auth.client_id
+}
+
+output "cognito_domain" {
+  value = module.auth.cognito_domain
+}

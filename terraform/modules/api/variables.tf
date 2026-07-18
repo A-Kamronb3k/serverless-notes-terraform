@@ -17,3 +17,13 @@ variable "allowed_origins" {
   description = "List of origins allowed by the API Gateway CORS configuration"
   type        = list(string)
 }
+
+variable "cognito_user_pool_id" {
+  description = "Cognito User Pool ID used as the JWT authorizer issuer"
+  type        = string
+}
+
+variable "cognito_client_id" {
+  description = "Cognito User Pool Client ID used as the JWT authorizer audience"
+  type        = string
+}

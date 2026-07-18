@@ -9,8 +9,13 @@
   <body>
     <div class="app">
       <header class="header">
-        <h1>Notes</h1>
-        <p class="subtitle">Simple notes backed by a serverless API</p>
+        <div class="header-row">
+          <div>
+            <h1>Notes</h1>
+            <p class="subtitle">Simple notes backed by a serverless API</p>
+          </div>
+          <button type="button" id="auth-button" class="btn-auth">Login</button>
+        </div>
       </header>
 
       <div id="error-banner" class="error-banner" hidden role="alert"></div>

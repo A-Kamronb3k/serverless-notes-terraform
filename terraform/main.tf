@@ -11,6 +11,8 @@ module "api" {
     "https://${module.frontend.distribution_domain_name}",
     "http://localhost:8000",
   ]
+  cognito_user_pool_id = module.auth.user_pool_id
+  cognito_client_id    = module.auth.client_id
 }
 
 module "frontend" {
@@ -19,4 +21,10 @@ module "frontend" {
   tags = {
     Project = "serverless-notes"
   }
+}
+
+module "auth" {
+  source            = "./modules/auth"
+  project           = var.project
+  cloudfront_domain = "https://${module.frontend.distribution_domain_name}"
 }

@@ -1,8 +1,11 @@
 (function () {
   "use strict";
 
+  const AUTH_TOKEN_KEY = "auth_token";
   const config = window.APP_CONFIG || {};
   const apiUrl = (config.apiUrl || "").replace(/\/$/, "");
+  const cognitoDomain = (config.cognitoDomain || "").replace(/\/$/, "");
+  const cognitoClientId = config.cognitoClientId || "";
 
   const els = {
     error: document.getElementById("error-banner"),
@@ -13,9 +16,98 @@
     createTitle: document.getElementById("create-title"),
     createContent: document.getElementById("create-content"),
     createSubmit: document.getElementById("create-submit"),
+    authButton: document.getElementById("auth-button"),
   };
 
   let notes = [];
+
+  function getAuthToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+  }
+
+  function setAuthToken(token) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  }
+
+  function clearAuthToken() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+  }
+
+  function isLoggedIn() {
+    return Boolean(getAuthToken());
+  }
+
+  function regionFromApiUrl() {
+    const match = apiUrl.match(/execute-api\.([a-z0-9-]+)\.amazonaws\.com/i);
+    return (match && match[1]) || "eu-north-1";
+  }
+
+  function hostedUiBaseUrl() {
+    if (!cognitoDomain) {
+      return "";
+    }
+    if (/^https?:\/\//i.test(cognitoDomain) || cognitoDomain.includes("amazoncognito.com")) {
+      return cognitoDomain.replace(/^https?:\/\//i, "https://");
+    }
+    return `https://${cognitoDomain}.auth.${regionFromApiUrl()}.amazoncognito.com`;
+  }
+
+  function captureTokenFromHash() {
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    if (!hash) {
+      return;
+    }
+
+    const params = new URLSearchParams(hash);
+    const token = params.get("id_token") || params.get("access_token");
+    if (!token) {
+      return;
+    }
+
+    setAuthToken(token);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
+
+  function loginUrl() {
+    const base = hostedUiBaseUrl();
+    if (!base || !cognitoClientId) {
+      throw new Error("Cognito is not configured. Set cognitoDomain and cognitoClientId in config.js.");
+    }
+
+    const params = new URLSearchParams({
+      client_id: cognitoClientId,
+      response_type: "token",
+      scope: "email openid",
+      redirect_uri: window.location.origin,
+    });
+    return `${base}/login?${params.toString()}`;
+  }
+
+  function updateAuthButton() {
+    if (isLoggedIn()) {
+      els.authButton.textContent = "Logout";
+      els.authButton.classList.add("is-logout");
+    } else {
+      els.authButton.textContent = "Login";
+      els.authButton.classList.remove("is-logout");
+    }
+  }
+
+  els.authButton.addEventListener("click", () => {
+    clearError();
+    if (isLoggedIn()) {
+      clearAuthToken();
+      window.location.reload();
+      return;
+    }
+    try {
+      window.location.assign(loginUrl());
+    } catch (err) {
+      showError(err.message);
+    }
+  });
 
   function showError(message) {
     els.error.hidden = false;
@@ -49,11 +141,25 @@
       throw new Error("API URL is not configured. Copy config.example.js to config.js.");
     }
 
+    const method = (options.method || "GET").toUpperCase();
+    const headers = {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    };
+
+    if (method === "POST" || method === "PUT" || method === "DELETE") {
+      const token = getAuthToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
     let res;
     try {
       res = await fetch(`${apiUrl}${path}`, {
-        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
         ...options,
+        method,
+        headers,
       });
     } catch {
       throw new Error("Network error — could not reach the API.");
@@ -76,6 +182,9 @@
     if (!res.ok) {
       const msg =
         (body && body.error) ||
+        (body && body.message) ||
+        (res.status === 401 && "Unauthorized — please log in") ||
+        (res.status === 403 && "Forbidden") ||
         (res.status === 400 && "Bad request") ||
         (res.status === 404 && "Not found") ||
         (res.status === 500 && "Internal server error") ||
@@ -265,5 +374,7 @@
     }
   });
 
+  captureTokenFromHash();
+  updateAuthButton();
   loadNotes();
 })();

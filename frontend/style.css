@@ -40,6 +40,13 @@ body {
   margin-bottom: 1.25rem;
 }
 
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .header h1 {
   margin: 0;
   font-size: 1.75rem;
@@ -51,6 +58,33 @@ body {
   margin: 0.35rem 0 0;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.btn-auth {
+  flex-shrink: 0;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 0.55rem 0.9rem;
+  color: #fff;
+  background: var(--accent);
+}
+
+.btn-auth:hover {
+  background: var(--accent-hover);
+}
+
+.btn-auth.is-logout {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.btn-auth.is-logout:hover {
+  border-color: var(--accent);
+  background: #eff6ff;
 }
 
 .error-banner {

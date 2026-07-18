@@ -120,6 +120,8 @@ resource "aws_lambda_function" "function" {
   depends_on = [aws_cloudwatch_log_group.function]
 }
 
+data "aws_region" "current" {}
+
 resource "aws_apigatewayv2_api" "this" {
   name          = var.project
   protocol_type = "HTTP"
@@ -127,8 +129,20 @@ resource "aws_apigatewayv2_api" "this" {
   cors_configuration {
     allow_origins = var.allowed_origins
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_headers = ["content-type"]
+    allow_headers = ["content-type", "authorization"]
     max_age       = 3600
+  }
+}
+
+resource "aws_apigatewayv2_authorizer" "jwt" {
+  api_id           = aws_apigatewayv2_api.this.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "${var.project}-jwt"
+
+  jwt_configuration {
+    issuer   = "https://cognito-idp.${data.aws_region.current.name}.amazonaws.com/${var.cognito_user_pool_id}"
+    audience = [var.cognito_client_id]
   }
 }
 
@@ -147,6 +161,9 @@ resource "aws_apigatewayv2_route" "function" {
   api_id    = aws_apigatewayv2_api.this.id
   route_key = each.value.route
   target    = "integrations/${aws_apigatewayv2_integration.function[each.key].id}"
+
+  authorization_type = startswith(each.value.route, "GET ") ? "NONE" : "JWT"
+  authorizer_id      = startswith(each.value.route, "GET ") ? null : aws_apigatewayv2_authorizer.jwt.id
 }
 
 resource "aws_apigatewayv2_stage" "default" {

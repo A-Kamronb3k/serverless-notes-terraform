@@ -33,7 +33,7 @@ module "iam" {
   source = "./modules/iam"
 
 
-  github_repo = "A-Kamronb3k/serverless-notes-terraform"
+  github_repo = "*/serverless-notes-terraform"
 
   state_bucket = "kamronbek-tfstate-2026"
 

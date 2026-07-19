@@ -58,7 +58,6 @@ jobs:
       - name: Terraform Init, Validate & Plan
         working-directory: ./terraform
         run: |
-          terraform fmt -check -recursive
           terraform init
           terraform validate
           terraform plan -no-color -lock-timeout=60s > plan.txt

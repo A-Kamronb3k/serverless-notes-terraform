@@ -28,3 +28,23 @@ module "auth" {
   project           = var.project
   cloudfront_domain = "https://${module.frontend.distribution_domain_name}"
 }
+
+module "iam" {
+  source = "./modules/iam"
+
+
+  github_repo = "A-Kamronb3k/serverless-notes-terraform"
+
+  state_bucket = "kamronbek-tfstate-2026"
+
+  lock_table_arn = "arn:aws:dynamodb:eu-north-1:911784619656:table/terraform-locks"
+}
+
+# Role'larning ARN'larini terminalda aniq ko'rish uchun output'lar:
+output "ci_plan_role_arn" {
+  value = module.iam.ci_plan_role_arn
+}
+
+output "ci_apply_role_arn" {
+  value = module.iam.ci_apply_role_arn
+}

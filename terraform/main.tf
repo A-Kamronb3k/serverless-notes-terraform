@@ -32,13 +32,11 @@ module "auth" {
 module "iam" {
   source = "./modules/iam"
 
-  # O'zingizning GitHub username va repongiz nomi:
+
   github_repo = "A-Kamronb3k/serverless-notes-terraform"
 
-  # 1-rasmdan olingan S3 state bucket nomi:
   state_bucket = "kamronbek-tfstate-2026"
 
-  # 2-rasmdan olingan ma'lumotlar asosida yig'ilgan Lock Table ARN:
   lock_table_arn = "arn:aws:dynamodb:eu-north-1:911784619656:table/terraform-locks"
 }
 

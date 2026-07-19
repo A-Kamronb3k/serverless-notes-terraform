@@ -51,8 +51,8 @@ resource "aws_iam_role_policy" "ci_plan_state" {
         ]
       },
       {
-        Effect = "Allow"
-        Action = ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem"]
+        Effect   = "Allow"
+        Action   = ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:DeleteItem"]
         Resource = var.lock_table_arn
       }
     ]
@@ -93,8 +93,8 @@ resource "aws_iam_role_policy" "ci_apply_inline" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = ["lambda:*"]
+        Effect   = "Allow"
+        Action   = ["lambda:*"]
         Resource = "arn:aws:lambda:*:*:function:notes-*"
       },
       {
@@ -126,9 +126,9 @@ resource "aws_iam_role_policy" "ci_apply_inline" {
       {
         Effect = "Allow"
         Action = [
-          "apigateway:*", 
-          "cloudfront:CreateInvalidation", 
-          "cloudfront:GetDistribution", 
+          "apigateway:*",
+          "cloudfront:CreateInvalidation",
+          "cloudfront:GetDistribution",
           "cloudfront:UpdateDistribution"
         ]
         Resource = "*" # API GW va CF qattiq cheklovlarni yaxshi qo'llab-quvvatlamaydi

@@ -22,7 +22,7 @@ resource "aws_iam_role" "ci_plan" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
+          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k@297892926/serverless-notes-terraform@1301875386:*"
         }
       }
     }]
@@ -76,65 +76,17 @@ resource "aws_iam_role" "ci_apply" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-          # DİQQAT: Faqat main branch'dan assume qilish mumkin!
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k@297892926/serverless-notes-terraform@1301875386:ref:refs/heads/main"
         }
       }
     }]
   })
 }
 
-# Apply uchun Prefix bilan cheklangan (Least Privilege) policy
-resource "aws_iam_role_policy" "ci_apply_inline" {
-  name = "ci-apply-permissions"
-  role = aws_iam_role.ci_apply.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["lambda:*"]
-        Resource = "arn:aws:lambda:*:*:function:notes-*"
-      },
-      {
-        Effect = "Allow"
-        Action = ["iam:*Role*", "iam:PassRole", "iam:*Policy*"]
-        Resource = [
-          "arn:aws:iam::*:role/notes-*",
-          "arn:aws:iam::*:policy/notes-*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = ["dynamodb:*"]
-        Resource = [
-          var.lock_table_arn,
-          "arn:aws:dynamodb:*:*:table/notes-*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = ["s3:*"]
-        Resource = [
-          "arn:aws:s3:::${var.state_bucket}",
-          "arn:aws:s3:::${var.state_bucket}/*",
-          "arn:aws:s3:::notes-frontend-*", # Prefix orqali frontend bucket
-          "arn:aws:s3:::notes-frontend-*/*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "apigateway:*",
-          "cloudfront:CreateInvalidation",
-          "cloudfront:GetDistribution",
-          "cloudfront:UpdateDistribution"
-        ]
-        Resource = "*" # API GW va CF qattiq cheklovlarni yaxshi qo'llab-quvvatlamaydi
-      }
-    ]
-  })
+# Apply uchun to'liq Admin huquqi (Terminaldan berganimizni kodga muhrladik)
+resource "aws_iam_role_policy_attachment" "ci_apply_admin" {
+  role       = aws_iam_role.ci_apply.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
 output "ci_plan_role_arn" {

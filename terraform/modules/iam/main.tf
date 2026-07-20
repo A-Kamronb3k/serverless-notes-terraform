@@ -1,10 +1,10 @@
-# 1. Mavjud OIDC Provider'ni chaqirib olamiz (YARATMAYMIZ)
+# 1. Reference the existing GitHub OIDC Provider
 data "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
 
 # ==========================================
-# 2. PR'lar uchun PLAN Role (Read-Only)
+# 2. PLAN Role for PRs (Read-Only)
 # ==========================================
 resource "aws_iam_role" "ci_plan" {
   name = "notes-ci-plan"
@@ -22,7 +22,7 @@ resource "aws_iam_role" "ci_plan" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k@297892926/serverless-notes-terraform@1301875386:*"
+          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k/serverless-notes-terraform:*"
         }
       }
     }]
@@ -34,7 +34,7 @@ resource "aws_iam_role_policy_attachment" "ci_plan_readonly" {
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
-# Plan uchun State va Lock table'ga ruxsat
+# Access to State bucket and Lock table for Plan
 resource "aws_iam_role_policy" "ci_plan_state" {
   name = "ci-plan-state-access"
   role = aws_iam_role.ci_plan.id
@@ -60,7 +60,7 @@ resource "aws_iam_role_policy" "ci_plan_state" {
 }
 
 # ==========================================
-# 3. Main branch uchun APPLY Role (Write, Scoped)
+# 3. APPLY Role for Main branch (Write, Scoped)
 # ==========================================
 resource "aws_iam_role" "ci_apply" {
   name = "notes-ci-apply"
@@ -76,14 +76,14 @@ resource "aws_iam_role" "ci_apply" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k@297892926/serverless-notes-terraform@1301875386:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k/serverless-notes-terraform:ref:refs/heads/main"
         }
       }
     }]
   })
 }
 
-# Apply uchun to'liq Admin huquqi (Terminaldan berganimizni kodga muhrladik)
+# Full Admin access for Apply
 resource "aws_iam_role_policy_attachment" "ci_apply_admin" {
   role       = aws_iam_role.ci_apply.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"

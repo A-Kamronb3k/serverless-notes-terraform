@@ -22,7 +22,7 @@ resource "aws_iam_role" "ci_plan" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k/serverless-notes-terraform:*"
+          "token.actions.githubusercontent.com:sub" = "repo:*serverless-notes-terraform*"
         }
       }
     }]
@@ -75,8 +75,10 @@ resource "aws_iam_role" "ci_apply" {
       }
       Condition = {
         StringEquals = {
-          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub" = "repo:A-Kamronb3k/serverless-notes-terraform:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+        }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = "repo:*serverless-notes-terraform:ref:refs/heads/main"
         }
       }
     }]

@@ -1,5 +1,5 @@
 # Serverless Notes App (AWS + Terraform)
-
+[![CI/CD Pipeline](https://github.com/A-Kamronb3k/serverless-notes-terraform/actions/workflows/ci.yml/badge.svg)](https://github.com/A-Kamronb3k/serverless-notes-terraform/actions/workflows/ci.yml)
 A full-stack, serverless single-page application (SPA) built and deployed entirely on AWS using Terraform.
 
 ## 🚀 Live Demo & API Endpoint

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from common import log, parse_body, response, table, validate_note
+from common import log, parse_body, response, get_table, validate_note
 
 
 def lambda_handler(event, context):
@@ -18,7 +18,10 @@ def lambda_handler(event, context):
             "updated_at": now,
         }
         log("INFO", "create", note_id=note_id)
+        
+        table = get_table()
         table.put_item(Item=item)
+        
         return response(201, item)
     except ValueError as exc:
         return response(400, {"error": str(exc)})

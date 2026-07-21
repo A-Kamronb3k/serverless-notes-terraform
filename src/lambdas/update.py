@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from botocore.exceptions import ClientError
 
-from common import log, parse_body, response, table, validate_note
+from common import log, parse_body, response, get_table, validate_note
 
 
 def lambda_handler(event, context):
@@ -30,6 +30,7 @@ def lambda_handler(event, context):
             names["#content"] = "content"
             values[":content"] = data["content"]
 
+        table = get_table()
         result = table.update_item(
             Key={"id": note_id},
             UpdateExpression="SET " + ", ".join(update_parts),

@@ -1,4 +1,4 @@
-from common import log, response, table
+from common import log, response, get_table
 
 
 def lambda_handler(event, context):
@@ -10,7 +10,10 @@ def lambda_handler(event, context):
             raise ValueError("id path parameter is required")
 
         log("INFO", "get", note_id=note_id)
+        
+        table = get_table()
         result = table.get_item(Key={"id": note_id})
+        
         item = result.get("Item")
         if not item:
             return response(404, {"error": "Note not found"})

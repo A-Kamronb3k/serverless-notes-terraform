@@ -1,6 +1,6 @@
 from botocore.exceptions import ClientError
 
-from common import log, response, table
+from common import log, response, get_table
 
 
 def lambda_handler(event, context):
@@ -12,6 +12,8 @@ def lambda_handler(event, context):
             raise ValueError("id path parameter is required")
 
         log("INFO", "delete", note_id=note_id)
+        
+        table = get_table()
         table.delete_item(
             Key={"id": note_id},
             ConditionExpression="attribute_exists(id)",

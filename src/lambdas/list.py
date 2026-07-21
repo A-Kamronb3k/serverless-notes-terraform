@@ -1,10 +1,13 @@
-from common import log, response, table
+from common import log, response, get_table
 
 
 def lambda_handler(event, context):
     try:
         log("INFO", "list", note_id=None)
+        
+        table = get_table()
         result = table.scan(Limit=50)
+        
         items = result.get("Items", [])
         return response(200, {"items": items, "count": len(items)})
     except ValueError as exc:

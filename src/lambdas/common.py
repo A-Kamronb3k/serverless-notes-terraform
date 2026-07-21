@@ -1,10 +1,14 @@
 import json
 import os
 from decimal import Decimal
+from functools import lru_cache
 
 import boto3
 
-table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
+
+@lru_cache
+def get_table():
+    return boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
 
 
 class DecimalEncoder(json.JSONEncoder):

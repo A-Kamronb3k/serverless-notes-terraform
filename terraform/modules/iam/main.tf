@@ -22,8 +22,13 @@ resource "aws_iam_role" "ci_plan" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          # Any ref (branches + pull requests) of this exact repository only
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
+          # Any ref (branches + pull requests) of this exact repository only.
+          # Two patterns: GitHub's legacy sub format and the newer immutable
+          # format that embeds owner/repo IDs (repo:owner@id/name@id:...).
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:${var.github_repo}:*",
+            "repo:${var.github_repo_immutable}:*",
+          ]
         }
       }
     }]
@@ -79,8 +84,12 @@ resource "aws_iam_role" "ci_apply" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          # Only the main branch of this exact repository can deploy
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+          # Only the main branch of this exact repository can deploy.
+          # Both legacy and immutable (id-embedded) sub formats are allowed.
+          "token.actions.githubusercontent.com:sub" = [
+            "repo:${var.github_repo}:ref:refs/heads/main",
+            "repo:${var.github_repo_immutable}:ref:refs/heads/main",
+          ]
         }
       }
     }]

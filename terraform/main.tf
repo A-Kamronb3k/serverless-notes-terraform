@@ -35,6 +35,10 @@ module "iam" {
 
   github_repo = "A-Kamronb3k/serverless-notes-terraform"
 
+  # GitHub's newer OIDC sub format embeds account and repository IDs
+  # (visible in the token's sub claim). Both formats are trusted.
+  github_repo_immutable = "A-Kamronb3k@297892926/serverless-notes-terraform@1301875386"
+
   state_bucket = "kamronbek-tfstate-2026"
 
   lock_table_arn = "arn:aws:dynamodb:eu-north-1:911784619656:table/terraform-locks"

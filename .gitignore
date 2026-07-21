@@ -6,3 +6,5 @@
 build/
 *.zip
 frontend/config.js
+__pycache__/
+.pytest_cache/

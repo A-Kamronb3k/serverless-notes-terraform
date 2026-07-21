@@ -22,7 +22,8 @@ resource "aws_iam_role" "ci_plan" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:*serverless-notes-terraform*"
+          # Any ref (branches + pull requests) of this exact repository only
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:*"
         }
       }
     }]
@@ -78,7 +79,8 @@ resource "aws_iam_role" "ci_apply" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:*serverless-notes-terraform:ref:refs/heads/main"
+          # Only the main branch of this exact repository can deploy
+          "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
         }
       }
     }]

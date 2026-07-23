@@ -44,7 +44,7 @@ module "iam" {
   lock_table_arn = "arn:aws:dynamodb:eu-north-1:911784619656:table/terraform-locks"
 }
 
-# Role'larning ARN'larini terminalda aniq ko'rish uchun output'lar:
+# CI role ARNs — copy these into the GitHub Actions repository variables:
 output "ci_plan_role_arn" {
   value = module.iam.ci_plan_role_arn
 }
